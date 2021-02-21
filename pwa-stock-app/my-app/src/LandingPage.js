@@ -41,7 +41,7 @@ const LandingPage = props => {
                                     data={Object.keys(stock).map(sto => {
                                         if (sto !== 'Potential_Analyse' && sto !== 'Stats' && sto !== 'Unternehmen') {
                                             if (stock[sto] && stock[sto] !== '-') {
-                                                return { x: parseInt(sto.split('e')[0]), y: parseFloat(stock[sto].split('%')[0].replace(',', '.')) }
+                                                return { x: parseInt(sto.split('e')[0]), y: parseFloat(stock[sto].split('%')[0].replace('.','').replace(',', '.')) }
                                             }
                                         }
                                     }).filter(dat => dat)}
