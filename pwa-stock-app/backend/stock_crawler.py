@@ -1,18 +1,17 @@
 
 import pandas as pd 
+from bs4 import BeautifulSoup
+import requests
+import re
+
 
 stock_data=pd.read_html("https://www.finanznachrichten.de/nachrichten/alle-empfehlungen.html")
 
-import re
-
+stock_data_first=pd.DataFrame(stock_data[1])
 stock_data_first['Aktuelle Nachrichten']=stock_data_first['Aktuelle Nachrichten'].str.findall('(?:stuft|belässt)\s([A-Za-z]+)').transform(''.join)
-
 stock_data_first['Potential in %']=stock_data_first['PotentialKurse aktuell'].str.findall('([+-]\d*)\s%').transform(''.join).apply(pd.to_numeric)
-
 stock_data_first=stock_data_first.sort_values(by=['Potential in %'],ascending=False)
 
-from bs4 import BeautifulSoup
-import requests
 
 page=requests.get("https://www.finanznachrichten.de/nachrichten/alle-empfehlungen.html")
 soup=BeautifulSoup(page.content,"html.parser")

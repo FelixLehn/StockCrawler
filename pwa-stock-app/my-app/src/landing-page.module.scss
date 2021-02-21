@@ -1,0 +1,36 @@
+.landingheader {
+    background-color: #282c34;
+    min-height: 20vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
+    color: white;
+  }
+.outertab{
+    background-color: #6e788b;
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
+    color: white;
+}
+.innertab{
+    background-color: #6e788b;
+    font-size: calc(10px + 2vmin);
+    color: white;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width:80%;
+}
+.box{
+    width:200px;
+    height:200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
