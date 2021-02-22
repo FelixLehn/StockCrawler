@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask,Blueprint
 from flask_cors import CORS
 import pandas as pd 
 import re
@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 
 app = Flask(__name__)
 CORS(app)
+api = Blueprint('api', __name__)
 
 def text_transform(stock_data):
     stock_data_first = pd.DataFrame(stock_data[1])
@@ -31,7 +32,7 @@ def get_best_links(best_five):
     best_five['links']=best_five['Aktuelle Nachrichten'].apply(lambda x: [y for y in filtered_links if x.lower() in y][0])
     return best_five
 
-@app.route('/stocks')
+@api.route('/stocks',methods=['GET'])
 def stock_compiler():
     stock_data = pd.read_html(
         "https://www.finanznachrichten.de/nachrichten/alle-empfehlungen.html")
@@ -58,3 +59,8 @@ def stock_compiler():
         stock_data_onvista=stock_data_onvista.append(filtered_data) 
     stock_data_onvista=stock_data_onvista.set_index([pd.Index([1, 2, 3, 4, 5])])
     return stock_data_onvista.to_json(orient='records')
+
+app.register_blueprint(api, url_prefix='/api')
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', debug=True, port=5050)

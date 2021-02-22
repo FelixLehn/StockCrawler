@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import styles from "./landing-page.module.scss";
 import { XYPlot, ChartLabel, VerticalGridLines, HorizontalGridLines, XAxis, YAxis, LineMarkSeries } from 'react-vis';
+import axios from "axios";
+
 const LandingPage = props => {
     const [stocks, setStocks] = useState([]);
 
     useEffect(() => {
         const stockfetcher = async () => {
-            const result = await fetch('/stocks')
-                .then(res => res.json())
-            console.log(result)
+            console.log('Starting')
+            const result = await axios.get('/api/stocks')
+                .then(res => res.data)
             setStocks(result)
         }
         stockfetcher()
