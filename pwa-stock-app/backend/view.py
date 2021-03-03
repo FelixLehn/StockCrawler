@@ -1,6 +1,7 @@
-from flask import Flask,Blueprint
+from flask import Flask,Blueprint,request,Response,stream_with_context
 from flask_cors import CORS
 import pandas as pd 
+import numpy as np
 import re
 import requests
 from bs4 import BeautifulSoup
@@ -32,33 +33,37 @@ def get_best_links(best_five):
     best_five['links']=best_five['Aktuelle Nachrichten'].apply(lambda x: [y for y in filtered_links if x.lower() in y][0])
     return best_five
 
-@api.route('/stocks',methods=['GET'])
+@api.route('/stocks',methods=['POST'])
 def stock_compiler():
-    stock_data = pd.read_html(
-        "https://www.finanznachrichten.de/nachrichten/alle-empfehlungen.html")
+    data=request.get_json()
+    def streamer(i):
+        n=np.array(range(5)) if i==0 else np.array(range(5,10))
+        stock_data = pd.read_html(
+            "https://www.finanznachrichten.de/nachrichten/alle-empfehlungen.html")
 
-    stock_data_first=text_transform(stock_data)
-    
-    best_five = stock_data_first.iloc[:5]
+        stock_data_first=text_transform(stock_data)
+        
+        best_five = stock_data_first.iloc[n]
 
-    best_links=get_best_links(best_five)
+        best_links=get_best_links(best_five)
 
-    isins=[]
-    for index,li in best_five.iterrows():
-        page_2=requests.get(li['links'])
-        soup_2=BeautifulSoup(page_2.content,"html.parser")
-        span=soup_2.find('span',attrs={'class':"wkn-isin"})
-        isins.append((span.find_all(id="produkt-isin")[0].get('data-isin'),li['links'],li['Potential in %'],li['Unternehmen / Aktien']))
-    stock_data_onvista=pd.DataFrame([])
-    for isin in isins:
-        data=pd.read_html("https://www.onvista.de/aktien/fundamental/-Aktie-{}".format(isin[0]))
-        filtered_data=data[1].rename(columns={data[1].columns[0]:"Stats"})
-        filtered_data['Unternehmen']=isin[3]
-        filtered_data['Potential_Analyse']=isin[2]
-        filtered_data=filtered_data.set_index(filtered_data['Unternehmen']).iloc[2]
-        stock_data_onvista=stock_data_onvista.append(filtered_data) 
-    stock_data_onvista=stock_data_onvista.set_index([pd.Index([1, 2, 3, 4, 5])])
-    return stock_data_onvista.to_json(orient='records')
+        isins=[]
+        for index,li in best_five.iterrows():
+            page_2=requests.get(li['links'])
+            soup_2=BeautifulSoup(page_2.content,"html.parser")
+            span=soup_2.find('span',attrs={'class':"wkn-isin"})
+            isins.append((span.find_all(id="produkt-isin")[0].get('data-isin'),li['links'],li['Potential in %'],li['Unternehmen / Aktien']))
+        stock_data_onvista=pd.DataFrame([])
+        for isin in isins:
+            data=pd.read_html("https://www.onvista.de/aktien/fundamental/-Aktie-{}".format(isin[0]))
+            filtered_data=data[1].rename(columns={data[1].columns[0]:"Stats"})
+            filtered_data['Unternehmen']=isin[3]
+            filtered_data['Potential_Analyse']=isin[2]
+            filtered_data=filtered_data.set_index(filtered_data['Unternehmen']).iloc[2]
+            stock_data_onvista=stock_data_onvista.append(filtered_data) 
+        stock_data_onvista=stock_data_onvista.set_index([pd.Index([1, 2, 3, 4, 5])])
+        return stock_data_onvista.to_json(orient='records')
+    return Response(streamer(data.get("number")))
 
 app.register_blueprint(api, url_prefix='/api')
 

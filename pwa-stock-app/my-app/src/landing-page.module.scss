@@ -9,7 +9,7 @@
     color: white;
   }
 .outertab{
-    background-color: #6e788b;
+    background-color: white;
     min-height: 80vh;
     display: flex;
     flex-direction: column;
@@ -19,15 +19,18 @@
     color: white;
 }
 .innertab{
-    background-color: #6e788b;
+    background-color: #9adcb0;
     font-size: calc(10px + 2vmin);
-    color: white;
+    color: black;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     width:80%;
+    border-radius: 20px;
+    margin: 10px; 
 }
 .box{
+    padding: 5px;
     width:200px;
     height:200px;
     display: flex;
