@@ -5,6 +5,7 @@ import numpy as np
 import re
 import requests
 from bs4 import BeautifulSoup
+import json 
 
 app = Flask(__name__)
 CORS(app)
@@ -59,11 +60,28 @@ def stock_compiler():
             filtered_data=data[1].rename(columns={data[1].columns[0]:"Stats"})
             filtered_data['Unternehmen']=isin[3]
             filtered_data['Potential_Analyse']=isin[2]
+            filtered_data['isin']=isin[0]
             filtered_data=filtered_data.set_index(filtered_data['Unternehmen']).iloc[2]
             stock_data_onvista=stock_data_onvista.append(filtered_data) 
         stock_data_onvista=stock_data_onvista.set_index([pd.Index([1, 2, 3, 4, 5])])
         return stock_data_onvista.to_json(orient='records')
     return Response(streamer(data.get("number")))
+
+@api.route('/chart',methods=['POST'])
+def stock_chart():
+    data=request.get_json()
+    if data:
+        isin=data.get('isin')
+        s_re=requests.post('https://api.openfigi.com/v2/mapping',json=[{'idType': 'ID_ISIN','idValue':isin}])
+        s_json=s_re.json()[0]
+        s_data=s_json.get('data')[0]
+        s_ma=requests.get('http://api.marketstack.com/v1/eod?access_key={}&symbols={}'.format('1cbb6d9efae20cc7607095632401ef24',s_data.get('ticker')))
+        s_ma_data=json.dumps(s_ma.json().get('data'))
+        
+        df=pd.read_json(s_ma_data)
+        df['date']=pd.to_datetime(df['date'])
+        df['date_1']=df['date'].dt.strftime('%m/%d/%Y')
+        return Response(df.to_json(orient='records'))
 
 app.register_blueprint(api, url_prefix='/api')
 

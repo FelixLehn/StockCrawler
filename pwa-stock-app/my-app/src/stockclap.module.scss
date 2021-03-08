@@ -1,0 +1,13 @@
+.chart{
+    display: flex;
+    justify-content: center;
+    background-color: #63729263;
+    margin: -15px 10px 0px 10px;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+    z-index: 0;
+    position: relative;
+}
+.innerbox{
+    padding-top: 15px;
+}
