@@ -79,11 +79,14 @@ def stock_chart():
         s_ma_data=json.dumps(s_ma.json().get('data'))
         
         df=pd.read_json(s_ma_data)
-        df['date']=pd.to_datetime(df['date'])
-        df['date_1']=df['date'].dt.strftime('%m/%d/%Y')
+        if not df.empty:
+            df['date']=pd.to_datetime(df['date'])
+            df['date_1']=df['date'].dt.strftime('%m/%d/%Y')
+        else: 
+            df['error']="Could not fetch the data for the stock chart. I am sorry"
         return Response(df.to_json(orient='records'))
 
 app.register_blueprint(api, url_prefix='/api')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True, port=5050)
+    app.run(host='0.0.0.0', debug=True, port=5000)

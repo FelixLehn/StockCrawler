@@ -53,7 +53,8 @@ const LandingPage = props => {
                                 <div className={styles.box} >
                                     <p>{stock.Unternehmen}</p>
                                 </div>
-                                <div className={styles.box} style={{ fontSize: '12px', width: "250px" }}>
+                                <div className={styles.box_middle} style={{width: "250px" }}>
+                                    <h1>Gewinnwachstum über Jahre</h1>
                                     <XYPlot height={200} width={250} xType="ordinal" >
                                         <HorizontalGridLines style={{ color: 'white' }} />
                                         <VerticalGridLines />
